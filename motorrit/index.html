@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#102e44"><meta name="description" content="Freaky Motorweer: bekijk de weersverwachting langs je motorroute in Nederland en Europa.">
+  <link rel="manifest" href="/manifest.webmanifest"><link rel="icon" type="image/png" href="/marsie/icon-192.png">
+  <title>Motorrit plannen | Freaky Weer & Verkeer</title>
+<style>
+:root{color-scheme:dark;--bg:#091a27;--surface:#122c3d;--surface2:#1b3a4b;--edge:#345361;--text:#f1f5f0;--muted:#b5c8c8;--accent:#ffc261;--good:#89dbc1;--warn:#ffcb78;--radius:20px}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;background:radial-gradient(ellipse 80% 44% at 94% -8%,#23505b 0%,transparent 65%),linear-gradient(165deg,#0d2836,#071522 65%);font:16px/1.5 system-ui,-apple-system,Segoe UI,Arial,sans-serif;color:var(--text)}
+a{color:#a7dfed}a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #f1c35f;outline-offset:3px}
+.wrap{max-width:1100px;margin:auto;padding:22px 22px 62px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}
+.brand{font-size:1rem;font-weight:800;letter-spacing:.02em}.brand a{text-decoration:none;color:var(--text)}.brand span{color:var(--accent)}
+.back{border:1px solid var(--edge);border-radius:999px;padding:9px 16px;background:#1b3748;text-decoration:none;color:var(--text);font-size:.88rem}
+.hero{display:grid;grid-template-columns:1fr minmax(220px, 330px);align-items:center;gap:10px;margin:32px 0 24px}
+.kicker{text-transform:uppercase;font-size:.78rem;font-weight:800;letter-spacing:.18em;color:var(--good)}h1{font-size:clamp(2.1rem,5vw,4.3rem);line-height:1.06;letter-spacing:-.055em;margin:.3rem 0 1rem}h1 span{color:var(--accent)}
+.intro{font-size:clamp(1rem,2vw,1.13rem);color:#c2d3d7;max-width:55ch;margin:0}.mascot{width:240px;height:auto;max-width:100%;filter:drop-shadow(0 14px 12px #0004)}
+.mascot .tail{transform-box:fill-box;transform-origin:10% 90%;animation:wag 2.4s ease-in-out infinite alternate}.mascot .arm{transform-box:fill-box;transform-origin:10% 20%;animation:wave 3.6s ease-in-out infinite}.mascot .eyes{transform-box:fill-box;transform-origin:center;animation:blink 5s infinite}.mascot .helmet{animation:bob 3s ease-in-out infinite}
+@keyframes wag{from{transform:rotate(-9deg)}to{transform:rotate(13deg)}}@keyframes wave{0%,55%,100%{transform:rotate(0)}70%{transform:rotate(-22deg)}82%{transform:rotate(10deg)}}@keyframes blink{0%,45%,49%,100%{transform:scaleY(1)}47%{transform:scaleY(.08)}}@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(2px)}}@media(prefers-reduced-motion:reduce){.mascot *{animation:none!important}}
+.panel{background:linear-gradient(160deg,rgba(27,59,75,.95),rgba(16,40,56,.96));border:1px solid var(--edge);border-radius:var(--radius);padding:clamp(18px,3vw,28px);box-shadow:0 14px 35px #0002}
+.panel h2{font-size:1.22rem;margin:0 0 12px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.field{display:grid;gap:6px}.field label{font-size:.82rem;font-weight:700;color:#d2e2e3}.field input{width:100%;padding:14px;border:1px solid #678390;border-radius:12px;background:#0a2232;color:white;font:inherit;min-width:0}.field input::placeholder{color:#adc0c7}
+button{font:inherit;cursor:pointer}.btn{display:inline-flex;justify-content:center;gap:.45rem;align-items:center;padding:13px 18px;border-radius:12px;border:0;background:var(--accent);color:#142a36;font-weight:800}.btn[disabled]{opacity:.55;cursor:progress}.btn.secondary{background:transparent;color:var(--text);border:1px solid var(--edge)}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:17px;align-items:center}
+.subtle{color:var(--muted);font-size:.87rem}.micro{font-size:.78rem;color:#b3c8cf}.message{margin:16px 0 0;border-radius:12px;padding:12px 14px;background:#234357;border:1px solid #4c7180}.message.error{background:#4b2e30;border-color:#b47e7e}.hide{display:none!important}
+#results{display:grid;gap:18px;margin-top:20px}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.metric{border:1px solid var(--edge);background:#102c3e;border-radius:14px;padding:15px}.metric strong{display:block;font-size:1.5rem;color:#fff}.metric small{display:block;color:var(--muted)}
+.route-art{width:100%;height:auto;aspect-ratio:4/1;max-height:230px;display:block;background:linear-gradient(135deg,#122d3a,#14283a);border-radius:14px;border:1px solid var(--edge)}.route-art path{stroke:var(--accent);stroke-width:2.3;fill:none;stroke-linecap:round;stroke-linejoin:round}.route-art circle{fill:var(--good);stroke:#102c3e;stroke-width:2}.route-art text{fill:#d6ebee;font:5px system-ui}
+.timeline{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:14px}.stop{border:1px solid #365969;border-radius:13px;padding:13px 10px;background:#102d3d;min-width:0}.stop strong{display:block;font-size:.9rem}.stop time{display:block;font-size:.77rem;color:var(--muted);margin:4px 0 8px}.stop .temp{font-size:1.55rem;font-weight:800;color:var(--accent)}.stop .mini{font-size:.77rem;color:#dce9e8;margin:4px 0}.dot{display:inline-block;width:7px;height:7px;background:var(--accent);border-radius:50%;margin-right:5px}.stop.attention{border-color:#e3ac5c;background:#3c3430}
+.note{font-size:.87rem;line-height:1.45;color:var(--muted)}.fave-row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 0}.fave-row button{border:1px solid var(--edge);border-radius:10px;background:#143448;color:#e4f2ef;padding:7px 11px;font-size:.81rem}
+.footer{margin-top:26px;padding-top:16px;border-top:1px solid #33505d;font-size:.79rem;color:#b9cbd1;line-height:1.7}.footer a{color:#c2d9e5}
+@media(max-width:760px){.hero{grid-template-columns:1fr 120px}.mascot{width:125px;height:125px}.timeline{grid-template-columns:repeat(2,minmax(0,1fr))}.timeline .stop:last-child{grid-column:1/-1}.metrics{grid-template-columns:repeat(3,1fr)}.metric strong{font-size:1.2rem}}
+@media(max-width:510px){.hero{grid-template-columns:1fr 100px;gap:0}.intro{font-size:.95rem}.wrap{padding:16px 13px 40px}.grid{grid-template-columns:1fr}.metrics{grid-template-columns:1fr 1fr}.metrics .metric:last-child{grid-column:1/-1}.route-art{aspect-ratio:3/1}.panel{padding:16px}}
+</style>
+
+<style id="freaky-v303-trip-css">
+/* Geen afbeeldingstegel rond de geanimeerde motorrijder. */
+#freaky-trip-rider{background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;object-fit:contain!important}
+</style>
+
+<!-- FREAKY MOTOR MOODS V3.0.4 -->
+<style id="freaky-v304-motor-css">
+.freaky-trip-stage{position:relative;isolation:isolate;width:min(100%,350px);aspect-ratio:16/11;overflow:hidden}
+.freaky-trip-stage img{width:100%!important;height:100%!important;object-fit:contain!important;
+  -webkit-mask-image:radial-gradient(ellipse at 50% 50%,black 53%,transparent 100%);
+  mask-image:radial-gradient(ellipse at 50% 50%,black 53%,transparent 100%)}
+.freaky-trip-stage::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0}
+.freaky-trip-stage[data-fx="rain"]::after,.freaky-trip-stage[data-fx="storm"]::after{
+ opacity:.6;background:repeating-linear-gradient(105deg,transparent 0 20px,#ceeaffaa 20px 21px,transparent 22px 60px);
+ animation:freaky-trip-rain 1.1s linear infinite}
+.freaky-trip-stage[data-fx="snow"]::after{
+ opacity:.75;background:radial-gradient(circle,#fff 2px,transparent 2.5px);background-size:36px 40px;
+ animation:freaky-trip-snow 5s linear infinite}
+.freaky-trip-stage[data-fx="fog"]::after{opacity:.55;background:linear-gradient(90deg,transparent,#eef7ff99,transparent);
+ background-size:240% 100%;animation:freaky-trip-fog 9s ease-in-out infinite alternate}
+@keyframes freaky-trip-rain{to{background-position:-130px 120px}}
+@keyframes freaky-trip-snow{to{background-position:18px 170px}}
+@keyframes freaky-trip-fog{to{background-position:100% 0}}
+@media(max-width:700px){.freaky-trip-stage{width:min(100%,250px)}}
+@media(prefers-reduced-motion:reduce){.freaky-trip-stage::after{animation:none!important}}
+</style>
+
+
+<!-- FREAKY MOTION V3.0.5 -->
+<style id="freaky-v305-css">
+/* Beeld los op de pagina; weergegevens en waarschuwingen blijven leesbaar. */
+#content.panel {background:transparent;border:0;border-radius:0;box-shadow:none;padding:0;margin:16px 0}
+.freaky-v304-stage {width:100%;max-width:100%;background:transparent;border:0;box-shadow:none;padding:0;gap:clamp(14px,3vw,32px)}
+.freaky-v304-scene {flex:0 0 min(49%,500px);width:min(49%,500px);overflow:visible;background:transparent;border:0;box-shadow:none}
+.freaky-v304-scene img {width:100%;height:100%;object-fit:contain;transform:none;animation:none;border:0;box-shadow:none;background:transparent}
+.freaky-v304-copy {padding:10px 0}
+.freaky-trip-stage {background:transparent;border:0;box-shadow:none}
+.freaky-trip-stage img {object-fit:contain}
+@media(max-width:680px){.freaky-v304-scene{flex:0 0 100%;width:100%;max-width:520px}.freaky-v304-copy{padding:0 2px 8px}}
+@media(prefers-reduced-motion:reduce){.freaky-v304-scene img{animation:none!important}}
+</style>
+
+
+<!-- FREAKY MOTOR RIJDEN V3.0.7 -->
+<style id="freaky-trip-v307-css">
+.freaky-trip-stage,.freaky-trip-stage img{background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important}
+.freaky-trip-stage img{-webkit-mask-image:none!important;mask-image:none!important}
+.freaky-trip-stage::after{border-radius:0!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top"><div class="brand"><img src="/marsie/portret.png" width="44" height="44" alt="Marsie" style="border-radius:50%;vertical-align:middle"> <a href="/">FREAKY <span>WEER & VERKEER</span></a></div><a class="back" href="/">← Terug naar het weer</a></header>
+<section class="hero">
+  <div><div class="kicker">Motorweer · pilot v3</div><h1>De rit begint <span>vóór vertrek.</span></h1><p class="intro">Kies zelf je route. Freaky bekijkt hoe temperatuur, regen en wind zich onderweg kunnen ontwikkelen — in Nederland en Europa.</p></div>
+  <div class="freaky-trip-stage" data-fx="clear"><img id="freaky-trip-rider" src="/marsie/motor.webp" width="350" height="240" alt="Marsie op de motor, filmische illustratie" decoding="async"></div>
+</section>
+<section class="panel" aria-labelledby="planTitle">
+  <h2 id="planTitle">Plan je motorrit</h2>
+  <p class="subtle">Plaatsnamen zijn voldoende. Bijvoorbeeld Schiedam → Monschau of Gorinchem → Luxemburg. Dit is routeweer, geen turn-by-turn navigatie. De route volgt een autoroute en is niet als motorroute gevalideerd.</p>
+  <form id="routeForm">
+    <div class="grid">
+      <div class="field"><label for="from">Vertrekplaats</label><input id="from" autocomplete="off" placeholder="Bijv. Schiedam" required value="Schiedam"></div>
+      <div class="field"><label for="to">Bestemming</label><input id="to" autocomplete="off" placeholder="Bijv. Monschau" required value="Gorinchem"></div>
+      <div class="field"><label for="departure">Vertrekdatum en tijd</label><input id="departure" type="datetime-local" required></div>
+      <div class="field"><label for="via">Via (optioneel, één plaats)</label><input id="via" autocomplete="off" placeholder="Bijv. Herwijnen"></div>
+    </div>
+    <div class="actions"><button class="btn" type="submit" id="calculate">🌦️ Analyseer mijn rit</button><button class="btn secondary" type="button" id="save" disabled>☆ Bewaar als favoriet</button></div>
+    <div id="status" role="status" aria-live="polite"></div>
+  </form>
+  <div id="faves" class="fave-row" aria-label="Mijn favoriete routes"></div>
+</section>
+<section id="results" aria-live="polite" hidden></section>
+<footer class="footer">Freaky gebruikt modellen van <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>, plaatszoekgegevens van Open-Meteo Geocoding en routering op basis van <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> via de OSRM-demodienst. Deze pilot geeft geen realtime navigatie of garantie op wegdekcondities. Verkeersdekking buiten Nederland is niet gegarandeerd. Controleer officiële waarschuwingen en verkeersinformatie voor vertrek. De OSRM-demodienst is niet geschikt als blijvende commerciële infrastructuur.</footer>
+</div>
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id), status=$('status'), result=$('results'), form=$('routeForm');
+const key='freaky_motor_routes_v3'; let last=null; let busy=false;
+const escapeHtml=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function setStatus(message,error=false){status.className=message?'message'+(error?' error':''):'';status.textContent=message;}
+function initDate(){const d=new Date(Date.now()+3600000);d.setMinutes(0,0,0);const local=new Date(d.getTime()-d.getTimezoneOffset()*60000);$('departure').value=local.toISOString().slice(0,16);}
+async function geo(place){
+  const q=place.trim();if(!q)throw new Error('Vul een plaatsnaam in.');
+  const u='https://geocoding-api.open-meteo.com/v1/search?name='+encodeURIComponent(q)+'&count=5&language=nl&format=json';
+  const r=await fetch(u);if(!r.ok)throw new Error('Plaatszoeker reageert niet.');
+  const j=await r.json();if(!j.results?.length)throw new Error('Plaats niet gevonden: '+q+'. Probeer een duidelijkere plaatsnaam.');
+  const exact=j.results.find(x=>x.name?.toLowerCase()===q.toLowerCase());const g=exact||j.results[0];
+  return {lat:g.latitude,lon:g.longitude,name:g.name+(g.country?', '+g.country:'')};
+}
+async function getRoute(locations){
+ const coords=locations.map(p=>p.lon+','+p.lat).join(';');
+ const url='https://router.project-osrm.org/route/v1/driving/'+coords+'?overview=full&geometries=geojson&alternatives=false';
+ const res=await fetch(url);if(!res.ok)throw new Error('De routeberekening is tijdelijk niet beschikbaar.');
+ const data=await res.json();if(data.code!=='Ok'||!data.routes?.length)throw new Error('Voor deze plaatsen kan geen route worden berekend.');
+ return data.routes[0];
+}
+function calcDistance(a,b){const toRad=x=>x*Math.PI/180;const dLat=toRad(b[1]-a[1]),dLon=toRad(b[0]-a[0]),la1=toRad(a[1]),la2=toRad(b[1]);const x=Math.sin(dLat/2)**2+Math.cos(la1)*Math.cos(la2)*Math.sin(dLon/2)**2;return 12742*Math.asin(Math.min(1,Math.sqrt(x)));}
+function sampleRoute(coords){
+ if(coords.length<2)throw new Error('Te weinig punten voor deze route.');
+ let total=0;const measures=[0];for(let i=1;i<coords.length;i++){total+=calcDistance(coords[i-1],coords[i]);measures.push(total);}
+ return [0,.25,.5,.75,1].map(t=>{
+   const dist=total*t;let k=1;while(k<measures.length-1&&measures[k]<dist)k++;
+   const den=measures[k]-measures[k-1]||1, frac=Math.max(0,Math.min(1,(dist-measures[k-1])/den));
+   return {lon:coords[k-1][0]+frac*(coords[k][0]-coords[k-1][0]),lat:coords[k-1][1]+frac*(coords[k][1]-coords[k-1][1]),fraction:t};
+ });
+}
+async function weather(p,at){
+ const url='https://api.open-meteo.com/v1/forecast?latitude='+p.lat+'&longitude='+p.lon+'&hourly=temperature_2m,precipitation_probability,precipitation,wind_speed_10m,wind_gusts_10m,weather_code&timezone=GMT&forecast_days=8';
+ const r=await fetch(url);if(!r.ok)throw new Error('Weermodel kon niet worden opgehaald.');const j=await r.json();
+ const hours=j.hourly?.time||[];if(!hours.length)throw new Error('Geen uurlijkse weersgegevens beschikbaar.');
+ const stamp=at.getTime();let idx=hours.findIndex(t=>Date.parse(t+'Z')>=stamp);if(idx<0)throw new Error('De rit ligt buiten de beschikbare weersverwachting (ongeveer zeven dagen).');
+ if(idx>0&&Math.abs(Date.parse(hours[idx-1]+'Z')-stamp)<Math.abs(Date.parse(hours[idx]+'Z')-stamp))idx--;
+ const h=j.hourly;const values=[h.temperature_2m[idx],h.precipitation[idx],h.precipitation_probability[idx],h.wind_gusts_10m[idx],h.wind_speed_10m[idx]];if(values.some(v=>v===null||!Number.isFinite(v)))throw new Error('Onvolledige weersgegevens op een routepunt.');return {temp:values[0],rain:values[1],prob:values[2],gust:values[3],wind:values[4],code:h.weather_code?.[idx]};
+}
+function fmtDuration(min){if(min<60)return Math.round(min)+' min';const h=Math.floor(min/60),m=Math.round(min%60);return h+' u '+(m?m+' min':'');}
+function fmtTime(date){return new Intl.DateTimeFormat('nl-NL',{weekday:'short',hour:'2-digit',minute:'2-digit'}).format(date);}
+function weatherFlag(w){if(w.gust>=75||w.rain>=1)return 'Extra aandacht';if(w.gust>=55||w.prob>=70||w.temp<=7)return 'Aandacht';return 'Geen eigen aandachtsdrempel bereikt';}
+function drawRoute(coords){
+ const subset=coords.filter((_,i)=>i%Math.max(1,Math.floor(coords.length/140))===0);subset.push(coords[coords.length-1]);
+ const ls=subset.map(x=>x[0]),ts=subset.map(x=>x[1]);const x0=Math.min(...ls),x1=Math.max(...ls),y0=Math.min(...ts),y1=Math.max(...ts);const dw=(x1-x0)||.01,dh=(y1-y0)||.01;
+ // Equalized scales make this a schematic route preview, not a navigation map.
+ const pts=subset.map(([lon,lat])=>[(12+76*(lon-x0)/dw).toFixed(2),(70-60*(lat-y0)/dh).toFixed(2)]);
+ return '<svg class="route-art" viewBox="0 0 100 80" role="img" aria-label="Schematische route tussen vertrek en bestemming"><path d="M'+pts.map(p=>p.join(' ')).join(' L')+'"/><circle cx="'+pts[0][0]+'" cy="'+pts[0][1]+'" r="2.9"/><circle cx="'+pts[pts.length-1][0]+'" cy="'+pts[pts.length-1][1]+'" r="2.9"/></svg>';
+}
+function setFreakyMotorWeather(conditions){
+ // Vijf werkelijk bemonsterde routepunten; niet de toestand op elke meter van de route.
+ const snow=conditions.some(w=>[71,73,75,77,85,86].includes(Number(w.code)));
+ const fog=conditions.some(w=>[45,48].includes(Number(w.code)));
+ const rainy=conditions.some(w=>Number(w.rain)>=0.05||[51,53,55,56,57,61,63,65,66,67,80,81,82,95,96,99].includes(Number(w.code)));
+ const gusty=conditions.some(w=>Number(w.gust)>=40);
+ const kind=rainy?(gusty?'motor-storm':'motor-rain'):(gusty?'motor-wind':'motor-dry');
+ const rider=document.getElementById('freaky-trip-rider');if(!rider)return;
+ rider.src=(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches?'/marsie/motor-stil.png':'/marsie/motor.webp');
+ rider.alt='Freaky op de motor; '+(snow?'mogelijk sneeuw':fog?'mogelijk mist':rainy?(gusty?'regen en harde wind':'regen'):gusty?'stevige wind':'droog weer');
+ rider.title='Weerbeeld op basis van vijf punten langs de route; dit is geen oordeel of de rit veilig is.';
+ rider.parentElement.dataset.fx=snow?'snow':fog?'fog':rainy?(gusty?'storm':'rain'):gusty?'wind':'clear';
+}
+
+function showRoute(route,points,conditions,departure,places){
+ const mins=route.duration/60, dist=route.distance/1000;
+ const alerts=conditions.filter(w=>weatherFlag(w)!=='Geen eigen aandachtsdrempel bereikt');
+ const topAlert=alerts.some(w=>weatherFlag(w)==='Extra aandacht')?'Op sommige routepunten extra aandacht voor wind of regen.':alerts.length?'Onderweg zijn weersignalen om rekening mee te houden.':'Geen eigen aandachtsdrempels bereikt in de vijf bemonsterde punten.';
+ result.hidden=false;result.innerHTML=`<div class="panel"><h2>${escapeHtml(places.join(' → '))}</h2><div class="metrics"><div class="metric"><small>Afstand</small><strong>${dist.toFixed(1).replace('.',',')} km</strong></div><div class="metric"><small>Basisreistijd</small><strong>${fmtDuration(mins)}</strong></div><div class="metric"><small>Vertrek</small><strong style="font-size:1.08rem">${escapeHtml(fmtTime(departure))}</strong></div></div><p class="note">Basisreistijd zonder files, stops en rijpauzes; geen routegebonden livevertraging meegerekend. De aankomsttijd per routepunt is bij benadering berekend.</p>${drawRoute(route.geometry.coordinates)}<p class="micro">Schematische routeweergave, niet bedoeld voor navigatie.</p></div>
+ <div class="panel"><h2>🌦️ Wat kom je onderweg tegen?</h2><p class="subtle">${escapeHtml(topAlert)}</p><div class="timeline">${conditions.map((w,i)=>{
+  const time=new Date(departure.getTime()+mins*60000*points[i].fraction);const flag=weatherFlag(w);return `<article class="stop${flag==='Extra aandacht'?' attention':''}"><strong>${['Vertrek','25% route','Halverwege','75% route','Bestemming'][i]}</strong><time>${escapeHtml(fmtTime(time))}</time><div class="temp">${Number(w.temp).toFixed(0)}°</div><div class="mini">🌧️ ${Number(w.rain).toFixed(1).replace('.',',')} mm · ${w.prob}% kans</div><div class="mini">💨 ${Math.round(w.wind)} km/u wind</div><div class="mini">⚠ ${Math.round(w.gust)} km/u windstoot</div><div class="mini"><span class="dot"></span>${escapeHtml(flag)}</div></article>`}).join('')}</div><p class="note">Weer per uur uit een model, afgerond naar de verwachte passeertijd. Een modelvoorspelling is geen actuele meting. Let op: windstoten, nat wegdek en lokale buien kunnen afwijken. Onze aandachtsdrempels zijn geen officiële waarschuwingen. Raadpleeg <a href="https://www.knmi.nl/nederland-nu/weer/waarschuwingen" target="_blank" rel="noopener">KNMI</a> en in het buitenland de lokale weerdienst.</p></div>`;
+ result.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});
+}
+function readFaves(){try{const v=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(v)?v.slice(0,8):[]}catch{return []}}
+function renderFaves(){const items=readFaves();$('faves').replaceChildren();if(!items.length)return;const cap=document.createElement('span');cap.className='subtle';cap.textContent='Favorieten:';$('faves').append(cap);for(const f of items){const b=document.createElement('button');b.textContent=f.from+' → '+f.to;b.type='button';b.onclick=()=>{$('from').value=f.from;$('to').value=f.to;$('via').value=f.via||'';};$('faves').append(b)}}
+$('save').addEventListener('click',()=>{if(!last)return;const items=readFaves().filter(x=>x.from!==last.from||x.to!==last.to||x.via!==last.via);items.unshift(last);localStorage.setItem(key,JSON.stringify(items.slice(0,8)));renderFaves();setStatus('Route opgeslagen op dit apparaat.');});
+form.addEventListener('submit',async(e)=>{
+ e.preventDefault();if(busy)return;
+ const from=$('from').value.trim(),to=$('to').value.trim(),via=$('via').value.trim();
+ const departure=new Date($('departure').value);if(Number.isNaN(departure.valueOf()))return setStatus('Kies een geldige vertrekdatum en tijd.',true);
+ if(departure.getTime()<Date.now()-3600000)return setStatus('Kies een vertrektijd vanaf nu.',true);
+ if(departure.getTime()>Date.now()+7*86400000)return setStatus('Kies een rit binnen de komende zeven dagen.',true);
+ busy=true;$('calculate').disabled=true;$('save').disabled=true;result.hidden=true;setStatus('Freaky zoekt je route en het weer langs de weg…');
+ try{
+  const queries=[from,...(via?[via]:[]),to];const geos=[];for(const q of queries)geos.push(await geo(q));
+  const route=await getRoute(geos);const points=sampleRoute(route.geometry.coordinates);
+  const promises=points.map(p=>weather(p,new Date(departure.getTime()+route.duration*1000*p.fraction)));
+  const conditions=await Promise.all(promises);
+  showRoute(route,points,conditions,departure,geos.map(g=>g.name));
+  setFreakyMotorWeather(conditions);
+  last={from,to,via};$('save').disabled=false;setStatus('Routeweer opgehaald. Bekijk de modelverwachting en de onzekerheden.');
+ }catch(err){console.error(err);setStatus(err?.message||'Er is iets misgegaan met de routegegevens.',true)}finally{busy=false;$('calculate').disabled=false}
+});
+initDate();renderFaves();
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(console.warn),{once:true});
+})();
+</script>
+</body>
+</html>

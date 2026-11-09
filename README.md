@@ -1,2 +1,3 @@
 # freaky-weer
-Weer app van Marcel
+
+Freaky Weer met Marsie. Broncode wordt afzonderlijk van andere projecten beheerd.
