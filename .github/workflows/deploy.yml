@@ -1,0 +1,89 @@
+name: Check and publish Freaky Weer
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: freaky-siteground-production
+  cancel-in-progress: false
+
+jobs:
+  check:
+    name: Check website and Marsie assets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify site, assets, JavaScript and PWA
+        run: node scripts/check-release.mjs
+
+  deploy:
+    name: Publish to mmsweerrapport.com
+    needs: check
+    if: ${{ github.event_name == 'workflow_dispatch' || vars.SITEGROUND_DEPLOY_READY == 'true' }}
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure dedicated SiteGround SSH credentials
+        env:
+          SG_HOST: ${{ secrets.SITEGROUND_HOST }}
+          SG_USER: ${{ secrets.SITEGROUND_USER }}
+          SG_TARGET: ${{ secrets.SITEGROUND_TARGET }}
+          SG_KEY: ${{ secrets.SITEGROUND_SSH_KEY }}
+          SG_KNOWN_HOSTS: ${{ secrets.SITEGROUND_KNOWN_HOSTS }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$SG_HOST" && test -n "$SG_USER" && test -n "$SG_TARGET" && test -n "$SG_KEY" && test -n "$SG_KNOWN_HOSTS" || {
+            echo "::error::SiteGround is nog niet verbonden. Stel eerst de vijf repository secrets in."
+            exit 1
+          }
+          [[ "$SG_HOST" =~ ^[A-Za-z0-9.-]+$ ]] || exit 1
+          [[ "$SG_USER" =~ ^[A-Za-z0-9._-]+$ ]] || exit 1
+          case "$SG_TARGET" in
+            */mmsweerrapport.com/public_html|*/mmsweerrapport.com/public_html/) ;;
+            *) echo "::error::Doelpad moet eindigen op mmsweerrapport.com/public_html"; exit 1 ;;
+          esac
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+          printf '%s\n' "$SG_KEY" > "$HOME/.ssh/siteground_deploy"
+          printf '%s\n' "$SG_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/siteground_deploy" "$HOME/.ssh/known_hosts"
+          printf '%s' "$SG_HOST" > "$RUNNER_TEMP/siteground_host"
+          printf '%s' "$SG_USER" > "$RUNNER_TEMP/siteground_user"
+          printf '%s' "${SG_TARGET%/}" > "$RUNNER_TEMP/siteground_target"
+      - name: Confirm correct remote website
+        shell: bash
+        run: |
+          set -euo pipefail
+          SG_HOST="$(cat "$RUNNER_TEMP/siteground_host")"
+          SG_USER="$(cat "$RUNNER_TEMP/siteground_user")"
+          SG_TARGET="$(cat "$RUNNER_TEMP/siteground_target")"
+          ssh -o BatchMode=yes -o StrictHostKeyChecking=yes -p 18765 -i "$HOME/.ssh/siteground_deploy" \
+            "$SG_USER@$SG_HOST" "test -d '$SG_TARGET'"
+      - name: Deploy site without deleting existing server files
+        shell: bash
+        run: |
+          set -euo pipefail
+          SG_HOST="$(cat "$RUNNER_TEMP/siteground_host")"
+          SG_USER="$(cat "$RUNNER_TEMP/siteground_user")"
+          SG_TARGET="$(cat "$RUNNER_TEMP/siteground_target")"
+          rsync -az --omit-dir-times --no-owner --no-group --no-perms \
+            --exclude '/.git/' --exclude '/.github/' --exclude '/scripts/' \
+            --exclude '/README.md' --exclude '/.DS_Store' \
+            -e "ssh -o BatchMode=yes -o StrictHostKeyChecking=yes -p 18765 -i $HOME/.ssh/siteground_deploy" \
+            ./ "$SG_USER@$SG_HOST:$SG_TARGET/"
+      - name: Check public homepage
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location --retry 3 \
+            https://mmsweerrapport.com/ | grep -q 'Freaky Weer'
