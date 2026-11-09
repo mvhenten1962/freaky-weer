@@ -72,7 +72,7 @@ jobs:
                 resolved="$(cd "$candidate" && pwd -P)"
                 case "$resolved" in
                   */mmsweerrapport.com/public_html)
-                    printf "%s\\n" "$resolved"
+                    printf "%s\n" "$resolved"
                     exit 0
                     ;;
                 esac
