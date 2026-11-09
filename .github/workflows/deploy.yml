@@ -36,22 +36,17 @@ jobs:
         env:
           SG_HOST: ${{ secrets.SITEGROUND_HOST }}
           SG_USER: ${{ secrets.SITEGROUND_USER }}
-          SG_TARGET: ${{ secrets.SITEGROUND_TARGET }}
           SG_KEY: ${{ secrets.SITEGROUND_SSH_KEY }}
           SG_KNOWN_HOSTS: ${{ secrets.SITEGROUND_KNOWN_HOSTS }}
         shell: bash
         run: |
           set -euo pipefail
-          test -n "$SG_HOST" && test -n "$SG_USER" && test -n "$SG_TARGET" && test -n "$SG_KEY" && test -n "$SG_KNOWN_HOSTS" || {
-            echo "::error::SiteGround is nog niet verbonden. Stel eerst de vijf repository secrets in."
+          test -n "$SG_HOST" && test -n "$SG_USER" && test -n "$SG_KEY" && test -n "$SG_KNOWN_HOSTS" || {
+            echo "::error::SiteGround is nog niet verbonden. Stel eerst de vier repository secrets in."
             exit 1
           }
           [[ "$SG_HOST" =~ ^[A-Za-z0-9.-]+$ ]] || exit 1
           [[ "$SG_USER" =~ ^[A-Za-z0-9._-]+$ ]] || exit 1
-          case "$SG_TARGET" in
-            */mmsweerrapport.com/public_html|*/mmsweerrapport.com/public_html/) ;;
-            *) echo "::error::Doelpad moet eindigen op mmsweerrapport.com/public_html"; exit 1 ;;
-          esac
           mkdir -p "$HOME/.ssh"
           chmod 700 "$HOME/.ssh"
           printf '%s\n' "$SG_KEY" > "$HOME/.ssh/siteground_deploy"
@@ -59,16 +54,38 @@ jobs:
           chmod 600 "$HOME/.ssh/siteground_deploy" "$HOME/.ssh/known_hosts"
           printf '%s' "$SG_HOST" > "$RUNNER_TEMP/siteground_host"
           printf '%s' "$SG_USER" > "$RUNNER_TEMP/siteground_user"
-          printf '%s' "${SG_TARGET%/}" > "$RUNNER_TEMP/siteground_target"
-      - name: Confirm correct remote website
+      - name: Discover and verify website document root
         shell: bash
         run: |
           set -euo pipefail
           SG_HOST="$(cat "$RUNNER_TEMP/siteground_host")"
           SG_USER="$(cat "$RUNNER_TEMP/siteground_user")"
-          SG_TARGET="$(cat "$RUNNER_TEMP/siteground_target")"
-          ssh -o BatchMode=yes -o StrictHostKeyChecking=yes -p 18765 -i "$HOME/.ssh/siteground_deploy" \
-            "$SG_USER@$SG_HOST" "test -d '$SG_TARGET'"
+          # Find only the configured domain's existing document root.
+          # Never use the SSH login home or a generic public_html folder.
+          SG_TARGET="$(ssh -o BatchMode=yes -o StrictHostKeyChecking=yes -p 18765 \
+            -i "$HOME/.ssh/siteground_deploy" "$SG_USER@$SG_HOST" 'set -eu
+            for candidate in \
+              "$HOME/www/mmsweerrapport.com/public_html" \
+              "$HOME/mmsweerrapport.com/public_html" \
+              "$HOME/public_html"; do
+              if [ -d "$candidate" ]; then
+                resolved="$(cd "$candidate" && pwd -P)"
+                case "$resolved" in
+                  */mmsweerrapport.com/public_html)
+                    printf "%s\\n" "$resolved"
+                    exit 0
+                    ;;
+                esac
+              fi
+            done
+            echo "Expected mmsweerrapport.com/public_html not found" >&2
+            exit 1')"
+          case "$SG_TARGET" in
+            */mmsweerrapport.com/public_html) ;;
+            *) echo "::error::Incorrect site directory"; exit 1 ;;
+          esac
+          printf '%s' "$SG_TARGET" > "$RUNNER_TEMP/siteground_target"
+          echo "Verified site directory: $SG_TARGET"
       - name: Deploy site without deleting existing server files
         shell: bash
         run: |
